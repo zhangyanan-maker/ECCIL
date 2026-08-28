@@ -39,44 +39,15 @@ The model assets expected by the manuscript and configuration are:
 | PHEME | English breaking-news tweets | 1,712 | 541 | 634 | 1,619 | 2,253 |
 | PolitiFact | English political news | 273 | 77 | 147 | 203 | 350 |
 
-### Weibo
+## Dataset
 
-The formal data loader expects the following configured layout. Image paths are read from the CSV and may be absolute or relative to `dataset.root`.
+The datasets used in this study are publicly available from the following repositories:
 
-```text
-/PATH/TO/WEIBO/
-├── train_weibo_final3.csv
-├── test_weibo_final3.csv
-└── ... image files referenced by the CSV ...
-```
+- **Weibo**: [MMFN-fake-news-detection](https://github.com/zhouyangming/MMFN-fake-news-detection)
+- **PHEME**: [Figshare](https://doi.org/10.6084/m9.figshare.4010619.v1)
+- **PolitiFact**: [MMFN-fake-news-detection](https://github.com/zhouyangming/MMFN-fake-news-detection)
 
-The default positional CSV mapping in `configs/weibo.yaml` is:
-
-| Field | Zero-based column index |
-| --- | ---: |
-| sample ID | 0 |
-| image path(s) | 1 |
-| label | 2 |
-| text | 3 |
-| has-image flag | 6 |
-
-Multiple image paths are separated by `|`. With `image_selection: seeded`, one path is selected deterministically from the split seed and sample ID. A sample with no image receives a blank 224 x 224 RGB image. The default `missing_image_policy: error` raises an error when a referenced image cannot be read.
-
-Text is padded or truncated to 300 tokens by the configured fast BERT tokenizer. Images are processed by the `AutoImageProcessor` stored with the local Swin model. The current code selects up to five spaCy named entities and up to five Faster R-CNN detections with confidence at least 0.7, masks one selected span or blackens one detected box at a time, and aligns the resulting signed scores to BERT tokens or Swin patches.
-
-If `dataset.val_csv` is unset, the formal loader creates a fixed, non-stratified 10% validation subset from the training CSV with `training.split_seed: 2024`. The official test CSV is evaluated only after validation-based model selection. Exact split indices are saved with each run.
-
-### PHEME
-
-The manuscript reports 1,712 training and 541 test samples, uses `bert-base-uncased` and `en_core_web_sm`, and sets batch size 32 and task learning rate `1e-3`.
-
-**TODO:** No PHEME data adapter, directory convention, column schema, validation protocol, configuration file, or executable training/evaluation command is included in the repository.
-
-### PolitiFact
-
-The manuscript reports 273 training and 77 test samples, uses `bert-base-uncased` and `en_core_web_sm`, and sets batch size 16 and task learning rate `1e-3`.
-
-**TODO:** No PolitiFact data adapter, directory convention, column schema, validation protocol, configuration file, or executable training/evaluation command is included in the repository.
+Please download the datasets from the original sources and organize them according to the directory structure required by the training scripts.
 
 ## Project Structure
 
