@@ -12,7 +12,7 @@ ECCIL is organized around three components:
 
 ## Framework
 
-![ECCIL framework](method.png)
+![ECCIL framework](./method.png)
 
 The upper part of the figure illustrates original and perturbed text/image encoding and contribution estimation. The lower part shows bidirectional multi-channel interaction, gated fusion, and binary classification.
 
