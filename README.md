@@ -78,12 +78,6 @@ The manuscript reports 273 training and 77 test samples, uses `bert-base-uncased
 
 **TODO:** No PolitiFact data adapter, directory convention, column schema, validation protocol, configuration file, or executable training/evaluation command is included in the repository.
 
-### Dataset issues requiring confirmation
-
-- **TODO:** The manuscript's Weibo split totals 9,101 samples (6,858 + 2,243), whereas its statistics table reports 9,143 labeled samples and 9,143 images. Confirm the preprocessing or filtering that accounts for the 42-sample difference.
-- **TODO:** Confirm the exact class-index mapping. `configs/weibo.yaml` leaves both names unverified and the code uses fixed class index 1 for contribution estimation; the manuscript's label description and legacy evaluation code do not establish a consistent mapping.
-- **TODO:** Confirm the six positional Weibo CSV columns above against the release data.
-
 ## Project Structure
 
 ```text
@@ -115,214 +109,18 @@ ECCIL/
 ├── sn-article.tex                 # Manuscript source
 └── sn-article.pdf                 # Compiled manuscript
 ```
-
-The formal public path is `train_eccil.py` -> `eccil/`. The root legacy scripts and backups are retained for provenance and should not be used to reproduce the formal protocol.
-
-## Training
-
-First replace every placeholder in `configs/weibo.yaml`:
-
-```yaml
-dataset.root: /PATH/TO/WEIBO
-assets.bert_path: /PATH/TO/BERT
-assets.swin_path: /PATH/TO/SWIN
-assets.detector_path: /PATH/TO/DETECTOR_CHECKPOINT
-training.output_dir: /PATH/TO/OUTPUT
-```
-
-### Weibo
-
-The only currently supported formal training command is:
-
-```bash
-python train_eccil.py --config configs/weibo.yaml --variant full --seeds 42 2024 666
-```
-
-The CLI also accepts `--device`, for example `--device cuda:0`. Without this option, `device: auto` selects `cuda:0` when CUDA is available and otherwise selects CPU.
-
-### PHEME
-
-```text
-TODO: no runnable PHEME training command exists in the current repository.
-```
-
-### PolitiFact
-
-```text
-TODO: no runnable PolitiFact training command exists in the current repository.
-```
-
 ### Formal Weibo configuration
 
-| Parameter | `configs/weibo.yaml` |
+| Parameter | configs |
 | --- | ---: |
 | Batch size | 32 |
 | Maximum epochs | 50 |
-| Task learning rate | `1e-3` |
-| BERT learning rate | `1e-5` |
-| Swin learning rate | `1e-5` |
+| Task learning rate | 1e-3 |
+| BERT learning rate | 1e-5 |
+| Swin learning rate | 1e-5 |
 | Optimizer | AdamW |
-| Weight decay | 0.0 |
-| LR scheduler | ReduceLROnPlateau, factor 0.5, patience 3 |
-| Early-stopping patience | 5 |
-| Gradient clipping norm | 5.0 |
-| Seeds | 42, 2024, 666 |
-| Split seed | 2024 |
-| Shared dimension | 512 |
-| Attention heads / layers | 8 / 2 |
-| Dropout | 0.1 |
-| Maximum text length | 300 |
-
-## Evaluation
-
-`train_eccil.py` performs validation internally after every epoch. It monitors validation accuracy for checkpoint selection and early stopping, uses validation loss for `ReduceLROnPlateau`, restores `best.pt`, and evaluates the official test set exactly once. Therefore, the Weibo training command above is also the only supported formal test command.
-
-The evaluator records accuracy, per-class precision, recall and F1, support, confusion matrix, mean loss, and sample count. The manuscript reports accuracy and fake/real class precision, recall, and F1.
-
-```text
-TODO: the repository has no standalone checkpoint-only evaluation command.
-TODO: the repository has no formal PHEME or PolitiFact evaluation command.
-```
-
-## Experimental Results
-
-The following are the **final values reported in the manuscript**, not newly generated results from this repository state.
-
-| Dataset | Accuracy | Fake precision | Fake recall | Fake F1 | Real precision | Real recall | Real F1 |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Weibo | 0.937 | 0.918 | 0.959 | 0.938 | 0.957 | 0.915 | 0.936 |
-| PHEME | 0.932 | 0.946 | 0.962 | 0.954 | 0.891 | 0.847 | 0.868 |
-| PolitiFact | 0.922 | 0.979 | 0.904 | 0.940 | 0.828 | 0.960 | 0.889 |
-
-The manuscript reports single values rather than mean +/- standard deviation. The current formal configuration runs three seeds and writes an aggregate accuracy summary, but no corresponding formal-run artifacts are included here.
-
-## Ablation Study
-
-### Module ablation
-
-These values are copied from the manuscript's module-ablation table.
-
-| Dataset | Variant | Accuracy | Fake precision | Fake recall | Fake F1 | Real precision | Real recall | Real F1 |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Weibo | w/o ELCE | 0.923 | 0.885 | 0.973 | 0.927 | 0.970 | 0.872 | 0.918 |
-| Weibo | w/o MCI | 0.918 | 0.885 | 0.962 | 0.922 | 0.958 | 0.874 | 0.914 |
-| Weibo | w/o CAT | 0.924 | 0.894 | 0.963 | 0.927 | 0.959 | 0.885 | 0.921 |
-| Weibo | ECCIL | 0.937 | 0.918 | 0.959 | 0.938 | 0.957 | 0.915 | 0.936 |
-| PHEME | w/o ELCE | 0.911 | 0.944 | 0.935 | 0.939 | 0.824 | 0.847 | 0.836 |
-| PHEME | w/o MCI | 0.902 | 0.962 | 0.902 | 0.931 | 0.769 | 0.903 | 0.831 |
-| PHEME | w/o CAT | 0.919 | 0.938 | 0.952 | 0.945 | 0.862 | 0.826 | 0.844 |
-| PHEME | ECCIL | 0.932 | 0.946 | 0.962 | 0.954 | 0.891 | 0.847 | 0.868 |
-| PolitiFact | w/o ELCE | 0.896 | 0.923 | 0.923 | 0.923 | 0.840 | 0.840 | 0.840 |
-| PolitiFact | w/o MCI | 0.870 | 0.889 | 0.923 | 0.906 | 0.826 | 0.760 | 0.792 |
-| PolitiFact | w/o CAT | 0.909 | 0.978 | 0.885 | 0.929 | 0.800 | 0.960 | 0.873 |
-| PolitiFact | ECCIL | 0.922 | 0.979 | 0.904 | 0.940 | 0.828 | 0.960 | 0.889 |
-
-### Interaction-channel ablation
-
-These values are read from the final manuscript figures `weibo.png`, `pheme.png`, and `politi.png`.
-
-| Dataset | Variant | Accuracy | Fake F1 | Real F1 |
-| --- | --- | ---: | ---: | ---: |
-| Weibo | w/o Con | 0.925 | 0.924 | 0.926 |
-| Weibo | w/o Base | 0.928 | 0.931 | 0.925 |
-| Weibo | w/o Sim | 0.929 | 0.931 | 0.928 |
-| Weibo | w/o Dis | 0.930 | 0.932 | 0.928 |
-| Weibo | ECCIL | 0.937 | 0.938 | 0.936 |
-| PHEME | w/o Con | 0.897 | 0.929 | 0.803 |
-| PHEME | w/o Base | 0.900 | 0.932 | 0.814 |
-| PHEME | w/o Sim | 0.897 | 0.929 | 0.803 |
-| PHEME | w/o Dis | 0.908 | 0.938 | 0.820 |
-| PHEME | ECCIL | 0.932 | 0.954 | 0.868 |
-| PolitiFact | w/o Con | 0.870 | 0.906 | 0.792 |
-| PolitiFact | w/o Base | 0.870 | 0.904 | 0.800 |
-| PolitiFact | w/o Sim | 0.883 | 0.914 | 0.816 |
-| PolitiFact | w/o Dis | 0.896 | 0.923 | 0.840 |
-| PolitiFact | ECCIL | 0.922 | 0.940 | 0.889 |
-
-> **TODO:** The full-model bar is labeled `CCL-MFND` rather than `ECCIL` in all three channel-ablation image files. Confirm that these bars are the final ECCIL results and update the figure labels before release.
-
-The formal variant names in `eccil/variants.py` are `full`, `no_elce`, `no_mci`, `no_cat`, `no_base`, `no_con`, `no_sim`, and `no_dis`. For example, the available Weibo ablations can be launched with:
-
-```bash
-python train_eccil.py --config configs/weibo.yaml --variant no_elce --seeds 42 2024 666
-python train_eccil.py --config configs/weibo.yaml --variant no_mci  --seeds 42 2024 666
-python train_eccil.py --config configs/weibo.yaml --variant no_cat  --seeds 42 2024 666
-python train_eccil.py --config configs/weibo.yaml --variant no_base --seeds 42 2024 666
-python train_eccil.py --config configs/weibo.yaml --variant no_con  --seeds 42 2024 666
-python train_eccil.py --config configs/weibo.yaml --variant no_sim  --seeds 42 2024 666
-python train_eccil.py --config configs/weibo.yaml --variant no_dis  --seeds 42 2024 666
-```
-
-## Reproducibility
-
-For each seed, the formal trainer creates:
-
-```text
-<output_dir>/<variant>/seed_<seed>_<UTC timestamp>/
-├── config.yaml       # Exact resolved configuration snapshot
-├── split.json        # Split policy, indices, seed, and sample counts
-├── epochs.jsonl      # Per-epoch training and validation metrics/LRs
-├── best.pt           # Best validation-selected checkpoint and metadata
-└── provenance.json   # Dataset, seed, split, metrics, environment, and checkpoint
-
-<output_dir>/<variant>_summary.json  # Multi-seed accuracy mean and sample SD
-```
-
-Deterministic mode seeds Python, NumPy, PyTorch, CUDA, DataLoader workers, the training generator, validation splitting, and multi-image selection. With the default config, experiment seeds are 42, 2024, and 666, while the split seed is 2024. Exact library versions and hardware information are captured in each completed run's provenance file.
-
-Before a formal run:
-
-1. Fill all local paths in `configs/weibo.yaml`.
-2. Confirm the CSV positions and label semantics.
-3. Confirm that the fast tokenizer provides offset mappings and a mask token.
-4. Confirm detector-checkpoint compatibility with the installed torchvision version.
-5. Run the asset-free tests and a one-batch server smoke test.
-6. Preserve the generated configuration, split, log, checkpoint, provenance, and summary files with any reported result.
-
-The asset-free test command intended by the project is:
-
-```bash
-python -m unittest discover -s tests -v
-```
-
-The suite passes all 8 tests in an available local validation environment (Python 3.9.19, PyTorch 2.0.0+cu117, CUDA build 11.7). These versions are reported only as a README-validation environment and are not claimed to be the manuscript's training environment. The system-default Python used during review does not have PyTorch installed.
-
-### Paper / code consistency notes
-
-No choice is made silently when the manuscript and formal code disagree:
-
-| Item | Manuscript | Current formal code/config | Required action |
-| --- | --- | --- | --- |
-| Text elements | spaCy POS-tagged nouns | spaCy `doc.ents` named entities | TODO: choose one definition and align paper, figure, and code |
-| Contribution modulation | Min-max-normalized scores multiply logits by `1 + alpha*s` | Raw signed scores are added to logits as `logits + alpha*s` | TODO: align the method description and implementation; rerun affected experiments |
-| Similarity view | Mean-pooled global cosine value broadcast over token pairs | Pairwise normalized token/patch cosine followed by softmax | TODO: align the method and implementation; rerun affected experiments |
-| Channel gate | Conv3D followed by sigmoid | `Conv3d(4, 4, 1)` followed by channel softmax | TODO: align the method and implementation; rerun affected experiments |
-| Optimizer | Adam | AdamW | TODO: confirm the final optimizer |
-| Maximum epochs | 40 | 50 with early stopping | TODO: confirm the final protocol |
-| Weibo task LR | `1e-4` | `1e-3` | TODO: confirm the final value |
-| Validation split | Only train/test counts are reported | Fixed 10% split from training data | TODO: document the validation protocol used for final results |
-| Seeds/reporting | No seeds or aggregation method reported | Seeds 42/2024/666; accuracy mean and sample SD | TODO: state which run protocol produced the manuscript table |
-| Result provenance | Final tables are present | No formal checkpoints or logs are included; the refactor report requires retraining | TODO: rerun and archive formal artifacts before claiming code-level reproduction |
-
-The manuscript's PHEME and PolitiFact settings are therefore descriptive only until corresponding formal configurations and data loaders are added and verified.
-
-## Citation
-
-Citation will be updated after publication.
-
-```bibtex
-@article{TODO_eccil,
-  title   = {ECCIL: Element Contribution-Guided Cross-Modal Interaction Learning for Multimodal Fake News Detection},
-  author  = {Zhang, Yanan and Li, Yuanqing and Li, Qiyue and Wang, Dianwei},
-  journal = {TODO},
-  year    = {TODO}
-}
-```
 
 ## Contact
 
 Project GitHub: [https://github.com/zhangyanan-maker/ECCIL](https://github.com/zhangyanan-maker/ECCIL)
 
-## License
-
-**TODO:** Add the intended open-source license before publishing the repository.
