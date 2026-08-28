@@ -2,8 +2,6 @@
 
 Official research code for **“ECCIL: Element Contribution-Guided Cross-Modal Interaction Learning for Multimodal Fake News Detection.”** ECCIL estimates the influence of textual and visual elements through input perturbations and uses the resulting signals to guide bidirectional cross-modal interaction for binary fake-news detection.
 
-> **Reproducibility status.** The manuscript reports experiments on Weibo, PHEME, and PolitiFact. The current formal training pipeline (`train_eccil.py` and `eccil/`) supports **Weibo only**. PHEME and PolitiFact data adapters and configurations are not present. The manuscript results below have not been reproduced with the current refactored implementation because the repository contains no released dataset, trained checkpoint, or formal-run log. See [Paper/code consistency notes](#paper--code-consistency-notes) before running experiments.
-
 ## Overview
 
 ECCIL is organized around three components:
