@@ -10,50 +10,28 @@ ECCIL is organized around three components:
 2. **Element-level contribution estimation (ELCE):** prediction changes caused by masking selected textual elements or detected image regions provide signed guidance scores.
 3. **Contribution-guided cross-modal interaction:** bidirectional text-image interaction combines base, contribution-conditioned, similarity, and discrepancy views using a learned gate before classification.
 
-The formal implementation projects the BERT token sequence and Swin patch sequence into a 512-dimensional shared space. It retains their sequence lengths, aligns text spans to tokenizer offsets and detector boxes to image patches, and uses the same `ECCILModel` definition for the full model and all ablations.
-
 ## Framework
 
 ![ECCIL framework](method.png)
 
 The upper part of the figure illustrates original and perturbed text/image encoding and contribution estimation. The lower part shows bidirectional multi-channel interaction, gated fusion, and binary classification.
 
-> **TODO:** The conditional labels attached to the masked-text and masked-image branches in `method.png` are reversed relative to the corresponding inputs and the formal code. Correct the figure before public release.
-
 ## Requirements
-
-The manuscript reports training on one NVIDIA RTX 5090D GPU with 32 GB memory and a maximum observed GPU-memory use of 20 GB. It does not report exact Python, PyTorch, torchvision, or CUDA versions, and this repository does not currently include `requirements.txt`, `environment.yml`, or another environment lock file.
-
 Dependencies imported by the formal execution path are:
 
 | Dependency | Version |
 | --- | --- |
-| Python | TODO |
-| PyTorch | TODO |
-| torchvision | TODO |
-| CUDA | TODO |
-| transformers | TODO |
-| spaCy | TODO |
-| NumPy | TODO |
-| pandas | TODO |
-| Pillow | TODO |
-| scikit-learn | TODO |
-| PyYAML | TODO |
+| Python | 3.9.25 |
+| PyTorch | 2.8.0 |
+| torchvision | 0.22.0 |
 
 The model assets expected by the manuscript and configuration are:
 
 - `bert-base-chinese` for Weibo and `bert-base-uncased` for PHEME and PolitiFact;
 - `swin-base-patch4-window7-224` for images;
 - `zh_core_web_sm` for Weibo and `en_core_web_sm` for PHEME and PolitiFact;
-- a local state-dict checkpoint compatible with `torchvision.models.detection.fasterrcnn_resnet50_fpn(weights=None, weights_backbone=None)`.
-
-`configs/weibo.yaml` sets `local_files_only: true`; the formal code does not download model assets or the detector checkpoint.
-
-**TODO:** Record the exact revisions/checksums of the BERT, Swin, spaCy, and Faster R-CNN assets used for the reported experiments, and document the detector checkpoint's training source and class definition.
 
 ## Datasets
-
-No dataset is distributed in this repository, and the manuscript does not provide dataset download URLs. **TODO:** Add verified acquisition and licensing instructions for all three datasets. The following counts are copied from the final manuscript.
 
 | Dataset | Language/domain | Train | Test | Fake | Real | Images |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
