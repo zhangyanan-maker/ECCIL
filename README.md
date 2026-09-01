@@ -52,33 +52,6 @@ Please download the datasets from the original sources and organize them accordi
 ## Project Structure
 
 ```text
-ECCIL/
-├── configs/
-│   └── weibo.yaml                 # Formal Weibo experiment configuration
-├── eccil/
-│   ├── __init__.py
-│   ├── config.py                  # YAML loading and validation
-│   ├── data.py                    # Weibo records, preprocessing, and data splits
-│   ├── model.py                   # Formal ECCIL model and local asset loading
-│   └── variants.py                # Full model and clean ablation definitions
-├── tests/
-│   └── test_eccil_core.py         # Asset-free formal-core tests
-├── exp/
-│   ├── multi_channel_1.py         # Preserved legacy model snapshot
-│   ├── train spacy_1.py           # Preserved legacy trainer snapshot
-│   └── weibo_dataset_1.py         # Preserved legacy Weibo loader snapshot
-├── phase1_backup_20260826/        # Earlier implementation backup
-├── readme/                        # Four README files used only as style references
-├── train_eccil.py                 # Formal leakage-free training/evaluation entry point
-├── multi_channel.py               # Legacy-compatible implementation; not the formal entry point
-├── train spacy.py                 # Legacy trainer; not recommended for formal runs
-├── eccil_sanity_check.py          # Legacy/refactor sanity checks
-├── method.png                     # Manuscript framework figure
-├── weibo.png                      # Manuscript channel-ablation figure
-├── pheme.png                      # Manuscript channel-ablation figure
-├── politi.png                     # Manuscript channel-ablation figure
-├── sn-article.tex                 # Manuscript source
-└── sn-article.pdf                 # Compiled manuscript
 ```
 ### Formal Weibo configuration
 
